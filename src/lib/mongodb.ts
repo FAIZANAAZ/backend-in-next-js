@@ -1,24 +1,30 @@
+// lib/mongodb.js
+// https://medium.com/@turingvang/next-js-beginner-mongodb-crud-example-tutorial-db2afdb68e25
 import mongoose from 'mongoose';
 
-const MONGODB_URI = process.env.MONGODB_URI;
+
+const MONGODB_URI = process.env.MONGODB_URI as string;
 
 if (!MONGODB_URI) {
   throw new Error('Please define the MONGODB_URI environment variable');
 }
 
+if (!MONGODB_URI) {
+  throw new Error('Please define the MONGODB_URI environment variable');
+}
+
+/** 
+ * Cached connection for MongoDB.
+ */
 interface MongooseCache {
   conn: typeof mongoose | null;
   promise: Promise<typeof mongoose> | null;
 }
 
-declare global {
-  var mongoose: MongooseCache | undefined;
-}
-
-let cached: MongooseCache = global.mongoose || { conn: null, promise: null };
+let cached = (global as typeof globalThis & { mongoose: MongooseCache }).mongoose;
 
 if (!cached) {
-  cached = global.mongoose = { conn: null, promise: null };
+  cached = (global as typeof globalThis & { mongoose: MongooseCache }).mongoose || { conn: null, promise: null };
 }
 
 async function connectToDatabase() {
@@ -27,20 +33,15 @@ async function connectToDatabase() {
   }
 
   if (!cached.promise) {
-    const opts = {
-      bufferCommands: false,
-    };
-
-    if (!MONGODB_URI) {
-      throw new Error('MONGODB_URI is not defined');
-    }
-    cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
+    cached.promise = mongoose.connect(MONGODB_URI).then((mongoose) => {
       return mongoose;
     });
   }
-
   cached.conn = await cached.promise;
   return cached.conn;
 }
+
+
+  
 
 export default connectToDatabase;

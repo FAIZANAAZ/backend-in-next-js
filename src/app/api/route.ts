@@ -78,8 +78,15 @@ export async function PUT(request: Request) {
     );
   }
 
+  
+  interface UpdateObj {
+    name?: string;
+    email?: string;
+    phone?: string;
+    message?: string;
+  }
   // Prepare update object, only include fields that are provided
-  const updateObj: any = {};
+  const updateObj :UpdateObj= {};
   if (name) updateObj.name = name;
   if (email) updateObj.email = email;
   if (phone) updateObj.phone = phone;
